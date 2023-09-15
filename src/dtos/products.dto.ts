@@ -8,6 +8,8 @@ import {
   IsOptional,
   MaxLength,
   NotEquals,
+  IsArray,
+  ArrayNotEmpty,
 } from 'class-validator';
 import { PartialType } from '@nestjs/swagger';
 
@@ -36,6 +38,19 @@ export class CreateProductDto {
   @IsBoolean()
   @IsOptional()
   readonly isBlocked: boolean;
+
+  @IsNotEmpty()
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsNumber({}, { each: true })
+  readonly categoriesIds: number[];
+
+  @IsOptional()
+  @IsNotEmpty()
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsNumber({}, { each: true })
+  readonly branchesIds: number[];
 }
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {}

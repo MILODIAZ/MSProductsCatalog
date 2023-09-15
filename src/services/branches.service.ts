@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
 import { Repository } from 'typeorm';
 
@@ -16,25 +20,39 @@ export class BranchesService {
   }
 
   async findOne(id: number) {
-    const branch = await this.branchRepo.findOneBy({ id });
+    const branch = await this.branchRepo.findOne({
+      where: { id },
+      relations: ['productStocks', 'productStocks.product'],
+    });
     if (!branch) {
-      throw new NotFoundException(`Branch ${name} not found`);
+      throw new NotFoundException(`Branch ${id} not found`);
     }
     return branch;
   }
 
-  create(payload: BranchDto) {
+  async create(payload: BranchDto) {
     const newBranch = this.branchRepo.create(payload);
-    return this.branchRepo.save(newBranch);
+    return await this.branchRepo.save(newBranch).catch((error) => {
+      throw new ConflictException(error.detail);
+    });
   }
 
   async update(id: number, payload: BranchDto) {
     const branch = await this.branchRepo.findOneBy({ id });
+    if (!branch) {
+      throw new NotFoundException(`Branch ${id} not found`);
+    }
     this.branchRepo.merge(branch, payload);
-    return this.branchRepo.save(branch);
+    return await this.branchRepo.save(branch).catch((error) => {
+      throw new ConflictException(error.detail);
+    });
   }
 
-  remove(id: number) {
-    return this.branchRepo.delete(id);
+  async remove(id: number) {
+    const branch = await this.branchRepo.findOneBy({ id });
+    if (!branch) {
+      throw new NotFoundException(`Branch ${id} not found`);
+    }
+    return this.branchRepo.delete({ id });
   }
 }

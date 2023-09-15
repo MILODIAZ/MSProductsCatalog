@@ -4,18 +4,19 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToMany,
+  ManyToOne,
+  Unique,
+  Check,
 } from 'typeorm';
 
 import { Product } from './product.entity';
+import { Branch } from './branches.entity';
 
 @Entity()
-export class Category {
+@Unique(['branch', 'product'])
+export class ProductStock {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column({ type: 'varchar', length: 50, unique: true })
-  name: string;
 
   @CreateDateColumn({
     type: 'timestamptz',
@@ -29,6 +30,13 @@ export class Category {
   })
   updateAt: Date;
 
-  @ManyToMany(() => Product, (product) => product.categories)
-  products: Product[];
+  @Column({ type: 'int', default: 0 })
+  @Check('"stock">=0')
+  stock: number;
+
+  @ManyToOne(() => Product, (product) => product.productStocks)
+  product: Product;
+
+  @ManyToOne(() => Branch, (branch) => branch.productStocks)
+  branch: Branch;
 }

@@ -17,6 +17,9 @@ import { Product } from './entities/product.entity';
 import { Category } from './entities/categories.entity';
 import { Branch } from './entities/branches.entity';
 import config from './config';
+import { ProductStock } from './entities/product-stock.entity';
+import { ProductStockController } from './controllers/product-stock.controller';
+import { ProductStockService } from './services/product-stock.service';
 
 @Module({
   imports: [
@@ -43,18 +46,19 @@ import config from './config';
           username: user,
           password,
           database: dbName,
-          synchronize: true,
+          synchronize: false,
           autoLoadEntities: true,
         };
       },
     }),
-    TypeOrmModule.forFeature([Product, Category, Branch]),
+    TypeOrmModule.forFeature([Product, Category, Branch, ProductStock]),
   ],
   controllers: [
     AppController,
     ProductsController,
     CategoriesController,
     BranchesController,
+    ProductStockController,
   ],
   providers: [
     AppService,
@@ -78,6 +82,7 @@ import config from './config';
       },
       inject: [config.KEY],
     },
+    ProductStockService,
   ],
 })
 export class AppModule {}
