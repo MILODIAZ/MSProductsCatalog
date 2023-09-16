@@ -4,44 +4,49 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
-import { Any, Repository } from 'typeorm';
+import { Any, Repository, Between, FindOptionsWhere, ILike } from 'typeorm';
 
 import { Product } from './../entities/product.entity';
-import { CreateProductDto, UpdateProductDto } from 'src/dtos/products.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  FilterProductsDto,
+} from 'src/dtos/products.dto';
 import { Category } from 'src/entities/categories.entity';
-
-import { ProductStock } from 'src/entities/product-stock.entity';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product) private productRepo: Repository<Product>,
     @InjectRepository(Category) private categoryRepo: Repository<Category>,
-    @InjectRepository(ProductStock)
-    private productStockRepo: Repository<ProductStock>,
   ) {}
 
-  findAll() {
+  findAll(params?: FilterProductsDto) {
+    if (params) {
+      const where: FindOptionsWhere<Product> = {};
+      const { limit, offset, maxPrice, minPrice, search } = params;
+      if (minPrice && maxPrice) {
+        where.price = Between(minPrice, maxPrice);
+      }
+      if (search) {
+        where.name = ILike(`%${search}%`);
+      }
+      return this.productRepo.find({
+        relations: ['categories', 'productStocks', 'productStocks.branch'],
+        where,
+        take: limit,
+        skip: offset,
+      });
+    }
     return this.productRepo.find({
-      relations: ['categories'],
+      relations: ['categories', 'productStocks', 'productStocks.branch'],
     });
   }
 
   async findOne(id: number) {
     const product = await this.productRepo.findOne({
       where: { id },
-      relations: ['categories'],
-    });
-    if (!product) {
-      throw new NotFoundException(`Product #${id} not found`);
-    }
-    return product;
-  }
-
-  async getStock(id: number) {
-    const product = await this.productRepo.findOne({
-      where: { id },
-      relations: ['productStocks', 'productStocks.branch'],
+      relations: ['categories', 'productStocks', 'productStocks.branch'],
     });
     if (!product) {
       throw new NotFoundException(`Product #${id} not found`);
@@ -58,7 +63,7 @@ export class ProductsService {
       });
       newProduct.categories = categories;
     }
-    await this.productRepo.save(newProduct).catch((error) => {
+    return await this.productRepo.save(newProduct).catch((error) => {
       throw new ConflictException(error.detail);
     });
   }

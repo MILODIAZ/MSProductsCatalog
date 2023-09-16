@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import {
   CreateProductStockDto,
@@ -13,6 +14,7 @@ import {
 } from 'src/dtos/product-stock.dto';
 import { ProductStockService } from 'src/services/product-stock.service';
 
+@ApiTags('Products Stock')
 @Controller('product-stock')
 export class ProductStockController {
   constructor(private productStockService: ProductStockService) {}

@@ -12,25 +12,27 @@ import {
 import { Product } from './product.entity';
 import { Branch } from './branches.entity';
 
-@Entity()
+@Entity('products_stock')
 @Unique(['branch', 'product'])
 export class ProductStock {
   @PrimaryGeneratedColumn()
   id: number;
 
   @CreateDateColumn({
+    name: 'created_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createAt: Date;
 
   @UpdateDateColumn({
+    name: 'updated_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   updateAt: Date;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: 'int', default: 0, nullable: true })
   @Check('"stock">=0')
   stock: number;
 
