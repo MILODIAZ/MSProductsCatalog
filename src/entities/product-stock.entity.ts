@@ -36,9 +36,15 @@ export class ProductStock {
   @Check('"stock">=0')
   stock: number;
 
-  @ManyToOne(() => Product, (product) => product.productStocks)
+  @ManyToOne(() => Product, (product) => product.productStocks, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   product: Product;
 
-  @ManyToOne(() => Branch, (branch) => branch.productStocks)
+  @ManyToOne(() => Branch, (branch) => branch.productStocks, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   branch: Branch;
 }

@@ -31,6 +31,9 @@ export class Branch {
   })
   updateAt: Date;
 
-  @OneToMany(() => ProductStock, (productStock) => productStock.branch)
+  @OneToMany(() => ProductStock, (productStock) => productStock.branch, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   productStocks: ProductStock[];
 }

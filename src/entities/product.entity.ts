@@ -57,7 +57,10 @@ export class Product {
   })
   updateAt: Date;
 
-  @ManyToMany(() => Category, (category) => category.products)
+  @ManyToMany(() => Category, (category) => category.products, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinTable({
     name: 'products_categories',
     joinColumn: {
@@ -70,7 +73,10 @@ export class Product {
   categories: Category[];
 
   @Exclude()
-  @OneToMany(() => ProductStock, (productStock) => productStock.product)
+  @OneToMany(() => ProductStock, (productStock) => productStock.product, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   productStocks: ProductStock[];
 
   @Expose()
