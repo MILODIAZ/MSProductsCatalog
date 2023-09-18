@@ -4,7 +4,6 @@ import { ConfigType } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import * as Joi from 'joi';
-import { Client } from 'pg';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProductsController } from './controllers/products.controller';
@@ -65,23 +64,6 @@ import { ProductStockService } from './services/product-stock.service';
     ProductsService,
     CategoriesService,
     BranchesService,
-    {
-      provide: 'PG',
-      useFactory: (configService: ConfigType<typeof config>) => {
-        const { user, host, dbName, password, port } = configService.postgres;
-        const client = new Client({
-          user: user,
-          host: host,
-          database: dbName,
-          password: password,
-          port: port,
-        });
-
-        client.connect();
-        return client;
-      },
-      inject: [config.KEY],
-    },
     ProductStockService,
   ],
 })

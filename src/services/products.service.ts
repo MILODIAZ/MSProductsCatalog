@@ -93,10 +93,18 @@ export class ProductsService {
     if (!product) {
       throw new NotFoundException(`Product #${productId} not found`);
     }
-    //ARREGLAR SI ES QUE YA SE ENCUENTRA LA CATEGORIA
     const category = await this.categoryRepo.findOneBy({ id: categoryId });
     if (!category) {
       throw new NotFoundException(`Category #${categoryId} not found`);
+    }
+    const isCategoryAlreadyAdded = product.categories.some(
+      (existingCategory) => existingCategory.id === categoryId,
+    );
+
+    if (isCategoryAlreadyAdded) {
+      throw new ConflictException(
+        `Category #${categoryId} is already added to the product`,
+      );
     }
     product.categories.push(category);
     return this.productRepo.save(product);
