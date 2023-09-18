@@ -9,16 +9,17 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 import { CategoriesService } from 'src/services/categories.service';
 import { CategoryDto } from 'src/dtos/categories.dto';
 import { CategoryMSG } from 'src/common/constants';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+
 
 @ApiTags('Categories')
 @Controller('categories')
 export class CategoriesController {
-  constructor(private categoriesService: CategoriesService) {}
+  constructor(private categoriesService: CategoriesService) { }
 
   //FIND ALL CATEGORIES
   @Get()
