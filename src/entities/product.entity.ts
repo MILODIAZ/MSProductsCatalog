@@ -41,7 +41,6 @@ export class Product {
   @Column({ type: 'boolean', default: false })
   isBlocked: boolean;
 
-  @Exclude()
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamptz',
@@ -49,7 +48,6 @@ export class Product {
   })
   createAt: Date;
 
-  @Exclude()
   @UpdateDateColumn({
     name: 'updated_at',
     type: 'timestamptz',
@@ -57,6 +55,7 @@ export class Product {
   })
   updateAt: Date;
 
+  @Exclude()
   @ManyToMany(() => Category, (category) => category.products, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
@@ -79,7 +78,7 @@ export class Product {
   })
   productStocks: ProductStock[];
 
-  @Expose()
+  /*@Expose()
   get stockByBranch() {
     if (this.productStocks) {
       return this.productStocks
@@ -91,7 +90,7 @@ export class Product {
         }));
     }
     return [];
-  }
+  }*/
 
   @Expose()
   get totalStock() {
