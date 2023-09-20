@@ -24,6 +24,10 @@ export class ProductStockService {
     @InjectRepository(Product) private productRepo: Repository<Product>,
   ) {}
 
+  async findAll() {
+    return this.productStockRepo.find();
+  }
+
   async create(payload: CreateProductStockDto) {
     const branch = await this.branchRepo.findOneBy({ id: payload.branchId });
     if (!branch) {
@@ -56,5 +60,14 @@ export class ProductStockService {
     return await this.productStockRepo.save(productStock).catch((error) => {
       throw new ConflictException(error.detail);
     });
+  }
+
+  async getBranch(id: number) {
+    const productStock = await this.productStockRepo.findOneBy({ id });
+    if (!productStock) {
+      throw new NotFoundException(`StockInfo #${id} not found`);
+    }
+    console.log('here');
+    return productStock.branch;
   }
 }

@@ -54,6 +54,10 @@ export class CreateProductDto {
   @ArrayNotEmpty()
   @IsNumber({}, { each: true })
   readonly branchesIds: number[];
+
+  @IsBoolean()
+  @IsOptional()
+  readonly isFavourite: boolean;
 }
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {}

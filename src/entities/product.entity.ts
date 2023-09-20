@@ -41,6 +41,9 @@ export class Product {
   @Column({ type: 'boolean', default: false })
   isBlocked: boolean;
 
+  @Column({ type: 'boolean', default: false })
+  isFavourite: boolean;
+
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamptz',
