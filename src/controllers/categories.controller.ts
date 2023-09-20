@@ -7,30 +7,30 @@ import {
   Delete,
   Put,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
 import { CategoriesService } from 'src/services/categories.service';
-import { CategoryDto } from 'src/dtos/categories.dto';
+import { CategoryDto, FilterCategoriesDto } from 'src/dtos/categories.dto';
 import { CategoryMSG } from 'src/common/constants';
-
 
 @ApiTags('Categories')
 @Controller('categories')
 export class CategoriesController {
-  constructor(private categoriesService: CategoriesService) { }
+  constructor(private categoriesService: CategoriesService) {}
 
   //FIND ALL CATEGORIES
   @Get()
-  get() {
-    return this.categoriesService.findAll();
+  get(@Query() params: FilterCategoriesDto) {
+    return this.categoriesService.findAll(params);
   }
 
   @MessagePattern(CategoryMSG.FIND_ALL)
-  async findAll() {
+  async findAll(@Payload() params: FilterCategoriesDto) {
     try {
-      const foundCategories = await this.categoriesService.findAll();
+      const foundCategories = await this.categoriesService.findAll(params);
       return {
         success: true,
         message: 'Categories found',

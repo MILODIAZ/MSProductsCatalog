@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, MaxLength, NotEquals } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MaxLength,
+  NotEquals,
+  IsOptional,
+  IsPositive,
+} from 'class-validator';
 
 export class CategoryDto {
   @IsString()
@@ -6,4 +13,10 @@ export class CategoryDto {
   @IsNotEmpty()
   @MaxLength(50)
   readonly name: string;
+}
+
+export class FilterCategoriesDto {
+  @IsOptional()
+  @IsPositive()
+  productId: number;
 }

@@ -34,7 +34,7 @@ export class ProductsController {
   }
 
   @MessagePattern(ProductMSG.FIND_ALL)
-  async findAll(@Query() params: FilterProductsDto) {
+  async findAll(@Payload() params: FilterProductsDto) {
     try {
       const foundProducts = await this.productsService.findAll(params);
       return {

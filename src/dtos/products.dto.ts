@@ -78,4 +78,8 @@ export class FilterProductsDto {
   @IsOptional()
   @IsNotEmpty()
   search: string;
+
+  @IsOptional()
+  @IsPositive()
+  categoryId: number;
 }

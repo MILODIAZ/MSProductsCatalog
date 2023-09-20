@@ -21,15 +21,20 @@ export class ProductsService {
     @InjectRepository(Category) private categoryRepo: Repository<Category>,
   ) {}
 
-  findAll(params?: FilterProductsDto) {
+  async findAll(params?: FilterProductsDto) {
     if (params) {
       const where: FindOptionsWhere<Product> = {};
-      const { limit, offset, maxPrice, minPrice, search } = params;
+      const { limit, offset, maxPrice, minPrice, search, categoryId } = params;
       if (minPrice && maxPrice) {
         where.price = Between(minPrice, maxPrice);
       }
       if (search) {
         where.name = ILike(`%${search}%`);
+      }
+      if (categoryId) {
+        where.categories = {
+          id: categoryId,
+        };
       }
       return this.productRepo.find({
         relations: ['categories', 'productStocks', 'productStocks.branch'],

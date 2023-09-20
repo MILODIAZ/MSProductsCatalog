@@ -7,15 +7,28 @@ import { InjectRepository } from '@nestjs/typeorm/dist';
 import { Repository } from 'typeorm';
 
 import { Category } from 'src/entities/categories.entity';
-import { CategoryDto } from 'src/dtos/categories.dto';
+import { Product } from 'src/entities/product.entity';
+import { CategoryDto, FilterCategoriesDto } from 'src/dtos/categories.dto';
 
 @Injectable()
 export class CategoriesService {
   constructor(
     @InjectRepository(Category) private categoryRepo: Repository<Category>,
+    @InjectRepository(Product) private productRepo: Repository<Product>,
   ) {}
 
-  findAll() {
+  async findAll(params?: FilterCategoriesDto) {
+    if (params) {
+      const { productId } = params;
+      const product = await this.productRepo.findOne({
+        where: { id: productId },
+        relations: ['categories'],
+      });
+      if (!product) {
+        throw new NotFoundException(`Product #${productId} not found`);
+      }
+      return product.categories;
+    }
     return this.categoryRepo.find();
   }
 
