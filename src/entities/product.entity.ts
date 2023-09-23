@@ -81,20 +81,6 @@ export class Product {
   })
   productStocks: ProductStock[];
 
-  /*@Expose()
-  get stockByBranch() {
-    if (this.productStocks) {
-      return this.productStocks
-        .filter((item) => !!item)
-        .map((item) => ({
-          ...item.branch,
-          stock: item.stock,
-          itemId: item.id,
-        }));
-    }
-    return [];
-  }*/
-
   @Expose()
   get totalStock() {
     if (this.productStocks) {

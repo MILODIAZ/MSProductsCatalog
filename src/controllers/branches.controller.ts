@@ -1,15 +1,4 @@
-import {
-  Body,
-  Controller,
-  //DefaultValuePipe,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-  //Query,
-  ParseIntPipe,
-} from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
@@ -20,13 +9,7 @@ import { BranchMSG } from 'src/common/constants';
 @ApiTags('Branches')
 @Controller('branches')
 export class BranchesController {
-  constructor(private branchesService: BranchesService) { }
-
-  //FIND ALL BRANCHES
-  @Get()
-  get() {
-    return this.branchesService.findAll();
-  }
+  constructor(private branchesService: BranchesService) {}
 
   @MessagePattern(BranchMSG.FIND_ALL)
   async findAll() {
@@ -44,12 +27,6 @@ export class BranchesController {
         error: error.message,
       };
     }
-  }
-
-  //FIND ONE BRANCH
-  @Get(':id')
-  getOne(@Param('id', ParseIntPipe) id: number) {
-    return this.branchesService.findOne(id);
   }
 
   @MessagePattern(BranchMSG.FIND_ONE)
@@ -70,14 +47,8 @@ export class BranchesController {
     }
   }
 
-  //CREATE BRANCH
-  @Post()
-  create(@Body() payload: BranchDto) {
-    return this.branchesService.create(payload);
-  }
-
   @MessagePattern(BranchMSG.CREATE)
-  async createProduct(@Payload() payload: BranchDto) {
+  async create(@Payload() payload: BranchDto) {
     try {
       const createdBranch = await this.branchesService.create(payload);
       return {
@@ -94,16 +65,8 @@ export class BranchesController {
     }
   }
 
-  //UPDATE BRANCH
-  @Put(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() payload: BranchDto) {
-    return this.branchesService.update(id, payload);
-  }
-
   @MessagePattern(BranchMSG.UPDATE)
-  async updateProduct(
-    @Payload() message: { id: number; payload: BranchDto },
-  ) {
+  async update(@Payload() message: { id: number; payload: BranchDto }) {
     try {
       const updateBranch = await this.branchesService.update(
         message.id,
@@ -123,16 +86,10 @@ export class BranchesController {
     }
   }
 
-  //DELETE BRANCH
-  @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number) {
-    return this.branchesService.remove(id);
-  }
-
   @MessagePattern(BranchMSG.DELETE)
-  async deleteProduct(@Payload() id: number) {
+  async delete(@Payload() id: number) {
     try {
-      const deletedBranch = await this.branchesService.remove(id);
+      const deletedBranch = await this.branchesService.delete(id);
       return {
         success: true,
         message: 'Branch deleted succesfully',
@@ -142,6 +99,24 @@ export class BranchesController {
       return {
         success: false,
         message: 'Failed to delete category',
+        error: error.message,
+      };
+    }
+  }
+
+  @MessagePattern(BranchMSG.GET_STOCK_ITEMS)
+  async getStockItems(@Payload() id: number) {
+    try {
+      const stockItems = await this.branchesService.getStockItems(id);
+      return {
+        success: true,
+        message: 'Stock items found succesfully',
+        data: stockItems,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Failed to get stock items',
         error: error.message,
       };
     }

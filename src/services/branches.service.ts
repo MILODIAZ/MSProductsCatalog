@@ -48,11 +48,23 @@ export class BranchesService {
     });
   }
 
-  async remove(id: number) {
+  async delete(id: number) {
     const branch = await this.branchRepo.findOneBy({ id });
     if (!branch) {
       throw new NotFoundException(`Branch ${id} not found`);
     }
-    return this.branchRepo.delete({ id });
+    this.branchRepo.delete({ id });
+    return branch;
+  }
+
+  async getStockItems(id: number) {
+    const branch = await this.branchRepo.findOne({
+      where: { id },
+      relations: ['productStocks'],
+    });
+    if (!branch) {
+      throw new NotFoundException(`Branch #${id} not found`);
+    }
+    return branch.productStocks;
   }
 }

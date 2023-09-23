@@ -1,16 +1,4 @@
-import {
-  Controller,
-  Get,
-  //Query,
-  Param,
-  //DefaultValuePipe,
-  Post,
-  Body,
-  Put,
-  Delete,
-  ParseIntPipe,
-  Query,
-} from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MessagePattern, Payload } from '@nestjs/microservices/decorators';
 
@@ -26,12 +14,6 @@ import { ProductMSG } from 'src/common/constants';
 @Controller('products')
 export class ProductsController {
   constructor(private productsService: ProductsService) {}
-
-  //FIND ALL PRODUCTS
-  @Get()
-  get(@Query() params: FilterProductsDto) {
-    return this.productsService.findAll(params);
-  }
 
   @MessagePattern(ProductMSG.FIND_ALL)
   async findAll(@Payload() params: FilterProductsDto) {
@@ -49,12 +31,6 @@ export class ProductsController {
         error: error.message,
       };
     }
-  }
-
-  //FIND ONE PRODUCT
-  @Get(':id')
-  getOne(@Param('id', ParseIntPipe) id: number) {
-    return this.productsService.findOne(id);
   }
 
   @MessagePattern(ProductMSG.FIND_ONE)
@@ -75,14 +51,8 @@ export class ProductsController {
     }
   }
 
-  //CREATE PRODUCT
-  @Post()
-  create(@Body() payload: CreateProductDto) {
-    return this.productsService.create(payload);
-  }
-
   @MessagePattern(ProductMSG.CREATE)
-  async createProduct(@Payload() payload: CreateProductDto) {
+  async create(@Payload() payload: CreateProductDto) {
     try {
       const createdProduct = await this.productsService.create(payload);
       return {
@@ -99,19 +69,8 @@ export class ProductsController {
     }
   }
 
-  //UPDATE PRODUCT
-  @Put(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() payload: UpdateProductDto,
-  ) {
-    return this.productsService.update(id, payload);
-  }
-
   @MessagePattern(ProductMSG.UPDATE)
-  async updateProduct(
-    @Payload() message: { id: number; payload: UpdateProductDto },
-  ) {
+  async update(@Payload() message: { id: number; payload: UpdateProductDto }) {
     try {
       const updateProduct = await this.productsService.update(
         message.id,
@@ -131,48 +90,10 @@ export class ProductsController {
     }
   }
 
-  //ADD CATEGORY TO PRODUCT
-  @Put(':id/category/:categoryId')
-  addCategory(
-    @Param('id', ParseIntPipe) id: number,
-    @Param('categoryId', ParseIntPipe) categoryId: number,
-  ) {
-    return this.productsService.addCategoryToProduct(id, categoryId);
-  }
-
-  @MessagePattern(ProductMSG.ADD_CAT_PROD)
-  async addCategoryToProduct(
-    @Payload() message: { id: number; categoryId: number },
-  ) {
-    try {
-      const addedCategory = await this.productsService.addCategoryToProduct(
-        message.id,
-        message.categoryId,
-      );
-      return {
-        success: true,
-        message: 'Category succesfully added to product',
-        data: addedCategory,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: 'Failed to add category to product',
-        error: error.message,
-      };
-    }
-  }
-
-  //DELETE PRODUCT
-  @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number) {
-    return this.productsService.remove(id);
-  }
-
   @MessagePattern(ProductMSG.DELETE)
-  async deleteProduct(@Payload() id: number) {
+  async delete(@Payload() id: number) {
     try {
-      const deletedProduct = await this.productsService.remove(id);
+      const deletedProduct = await this.productsService.delete(id);
       return {
         success: true,
         message: 'Product deleted succesfully',
@@ -187,34 +108,83 @@ export class ProductsController {
     }
   }
 
-  //REMOVE CATEGORY FROM PRODUCT
-  @Delete(':id/category/:categoryId')
-  deleteCategory(
-    @Param('id', ParseIntPipe) id: number,
-    @Param('categoryId', ParseIntPipe) categoryId: number,
-  ) {
-    return this.productsService.removeCategoryByProduct(id, categoryId);
-  }
-
-  @MessagePattern(ProductMSG.DELETE_CAT_PROD)
-  async deleteCategoryFromProduct(
-    @Payload() message: { id: number; categoryId: number },
-  ) {
+  @MessagePattern(ProductMSG.GET_CATEGORIES)
+  async getCategories(@Payload() id: number) {
     try {
-      const deletedCategory =
-        await this.productsService.removeCategoryByProduct(
-          message.id,
-          message.categoryId,
-        );
+      const categories = await this.productsService.getCategories(id);
       return {
         success: true,
-        message: 'Category succesfully deleted from product',
-        data: deletedCategory,
+        message: 'Categories found succesfully',
+        data: categories,
       };
     } catch (error) {
       return {
         success: false,
-        message: 'Failed to delete category from product',
+        message: 'Failed to get categories',
+        error: error.message,
+      };
+    }
+  }
+
+  @MessagePattern(ProductMSG.GET_STOCK_ITEMS)
+  async getStockItems(@Payload() id: number) {
+    try {
+      const stockItems = await this.productsService.getStockItems(id);
+      return {
+        success: true,
+        message: 'Stock items found succesfully',
+        data: stockItems,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Failed to get stock items',
+        error: error.message,
+      };
+    }
+  }
+
+  @MessagePattern(ProductMSG.ADD_CATEGORY)
+  async addCategory(
+    @Payload() message: { categoryId: number; productId: number },
+  ) {
+    try {
+      const category = await this.productsService.addCategory(
+        message.categoryId,
+        message.productId,
+      );
+      return {
+        success: true,
+        message: 'Category added succesfully',
+        data: category,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Failed to add category',
+        error: error.message,
+      };
+    }
+  }
+
+  @MessagePattern(ProductMSG.REMOVE_CATEGORY)
+  async removeCategory(
+    @Payload() message: { categoryId: number; productId: number },
+  ) {
+    try {
+      const category = await this.productsService.removeCategory(
+        message.categoryId,
+        message.productId,
+      );
+      return {
+        success: true,
+        message: 'Category removed succesfully',
+        data: category,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Failed to remove category',
         error: error.message,
       };
     }

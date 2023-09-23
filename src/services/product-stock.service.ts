@@ -28,6 +28,16 @@ export class ProductStockService {
     return this.productStockRepo.find();
   }
 
+  async findOne(id: number) {
+    const stockItem = await this.productStockRepo.findOne({
+      where: { id },
+    });
+    if (!stockItem) {
+      throw new NotFoundException(`Stock item #${id} not found`);
+    }
+    return stockItem;
+  }
+
   async create(payload: CreateProductStockDto) {
     const branch = await this.branchRepo.findOneBy({ id: payload.branchId });
     if (!branch) {
@@ -50,7 +60,7 @@ export class ProductStockService {
       id,
     });
     if (!productStock) {
-      throw new NotFoundException(`StockInfo #${id} not found`);
+      throw new NotFoundException(`Stock item #${id} not found`);
     }
     const updatedStock = productStock.stock + payload.stock;
     if (updatedStock < 0) {
@@ -62,12 +72,34 @@ export class ProductStockService {
     });
   }
 
+  async delete(id: number) {
+    const stockItem = await this.productStockRepo.findOneBy({ id });
+    if (!stockItem) {
+      throw new NotFoundException(`Stock item ${id} not found`);
+    }
+    this.productStockRepo.delete({ id });
+    return stockItem;
+  }
+
   async getBranch(id: number) {
-    const productStock = await this.productStockRepo.findOneBy({ id });
+    const productStock = await this.productStockRepo.findOne({
+      where: { id },
+      relations: ['branch'],
+    });
     if (!productStock) {
       throw new NotFoundException(`StockInfo #${id} not found`);
     }
-    console.log('here');
     return productStock.branch;
+  }
+
+  async getProduct(id: number) {
+    const productStock = await this.productStockRepo.findOne({
+      where: { id },
+      relations: ['product'],
+    });
+    if (!productStock) {
+      throw new NotFoundException(`StockInfo #${id} not found`);
+    }
+    return productStock.product;
   }
 }

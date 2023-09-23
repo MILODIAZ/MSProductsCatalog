@@ -8,8 +8,6 @@ import {
   IsOptional,
   MaxLength,
   NotEquals,
-  IsArray,
-  ArrayNotEmpty,
   Min,
   ValidateIf,
 } from 'class-validator';
@@ -40,20 +38,6 @@ export class CreateProductDto {
   @IsBoolean()
   @IsOptional()
   readonly isBlocked: boolean;
-
-  @IsOptional()
-  @IsNotEmpty()
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsNumber({}, { each: true })
-  readonly categoriesIds: number[];
-
-  @IsOptional()
-  @IsNotEmpty()
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsNumber({}, { each: true })
-  readonly branchesIds: number[];
 
   @IsBoolean()
   @IsOptional()

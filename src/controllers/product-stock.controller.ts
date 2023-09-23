@@ -1,15 +1,8 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Put,
-  Param,
-  ParseIntPipe,
-} from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ApiTags } from '@nestjs/swagger';
 
-import { ProductMSG, StockItemMSG } from 'src/common/constants';
+import { StockItemMSG } from 'src/common/constants';
 import {
   CreateProductStockDto,
   UpdateProductStockDto,
@@ -39,14 +32,26 @@ export class ProductStockController {
     }
   }
 
-  //ADD PRODUCT TO BRANCH
-  @Post()
-  create(@Body() payload: CreateProductStockDto) {
-    return this.productStockService.create(payload);
+  @MessagePattern(StockItemMSG.FIND_ONE)
+  async findOne(@Payload() id: number) {
+    try {
+      const foundProduct = await this.productStockService.findOne(id);
+      return {
+        success: true,
+        message: 'Stock item found',
+        data: foundProduct,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Stock item not found',
+        error: error.message,
+      };
+    }
   }
 
-  @MessagePattern(ProductMSG.CREATE_STOCK)
-  async addProductStock(@Payload() payload: CreateProductStockDto) {
+  @MessagePattern(StockItemMSG.CREATE)
+  async create(@Payload() payload: CreateProductStockDto) {
     try {
       const addedStock = await this.productStockService.create(payload);
       return {
@@ -63,16 +68,8 @@ export class ProductStockController {
     }
   }
 
-  @Put(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() payload: UpdateProductStockDto,
-  ) {
-    return this.productStockService.update(id, payload);
-  }
-
-  @MessagePattern(ProductMSG.UPDATE_STOCK)
-  async updateStock(
+  @MessagePattern(StockItemMSG.UPDATE)
+  async update(
     @Payload() message: { id: number; payload: UpdateProductStockDto },
   ) {
     try {
@@ -94,6 +91,24 @@ export class ProductStockController {
     }
   }
 
+  @MessagePattern(StockItemMSG.DELETE)
+  async delete(@Payload() id: number) {
+    try {
+      const deletedStockItem = await this.productStockService.delete(id);
+      return {
+        success: true,
+        message: 'Stock item deleted succesfully',
+        data: deletedStockItem,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Failed to delete stock item',
+        error: error.message,
+      };
+    }
+  }
+
   @MessagePattern(StockItemMSG.GET_BRANCH)
   async getBranch(@Payload() id: number) {
     try {
@@ -107,6 +122,24 @@ export class ProductStockController {
       return {
         success: false,
         message: 'Failed to get branch',
+        error: error.message,
+      };
+    }
+  }
+
+  @MessagePattern(StockItemMSG.GET_PRODUCT)
+  async getProduct(@Payload() id: number) {
+    try {
+      const product = await this.productStockService.getProduct(id);
+      return {
+        success: true,
+        message: 'Product found succesfully',
+        data: product,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Failed to get product',
         error: error.message,
       };
     }
