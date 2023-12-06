@@ -4,7 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist';
-import { Repository, Between, FindOptionsWhere, ILike } from 'typeorm';
+import {
+  Repository,
+  FindOptionsWhere,
+  ILike,
+  Between,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+} from 'typeorm';
 
 import { Product } from './../entities/product.entity';
 import {
@@ -27,6 +34,14 @@ export class ProductsService {
       const { limit, offset, maxPrice, minPrice, search, categoryId } = params;
       if (minPrice && maxPrice) {
         where.price = Between(minPrice, maxPrice);
+      } else {
+        if (minPrice) {
+          where.price = MoreThanOrEqual(minPrice);
+        } else {
+          if (maxPrice) {
+            where.price = LessThanOrEqual(maxPrice);
+          }
+        }
       }
       if (search) {
         where.name = ILike(`%${search}%`);
@@ -51,6 +66,7 @@ export class ProductsService {
   async findOne(id: number) {
     const product = await this.productRepo.findOne({
       where: { id },
+      relations: ['categories', 'productStocks', 'productStocks.branch'],
     });
     if (!product) {
       throw new NotFoundException(`Product #${id} not found`);

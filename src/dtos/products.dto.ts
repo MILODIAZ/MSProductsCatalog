@@ -9,7 +9,6 @@ import {
   MaxLength,
   NotEquals,
   Min,
-  ValidateIf,
 } from 'class-validator';
 import { PartialType } from '@nestjs/swagger';
 
@@ -59,7 +58,7 @@ export class FilterProductsDto {
   @IsPositive()
   minPrice: number;
 
-  @ValidateIf((item) => item.minPrice)
+  @IsOptional()
   @IsPositive()
   maxPrice: number;
 
