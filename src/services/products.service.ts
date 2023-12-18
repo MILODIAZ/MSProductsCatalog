@@ -20,12 +20,15 @@ import {
   FilterProductsDto,
 } from 'src/dtos/products.dto';
 import { Category } from 'src/entities/categories.entity';
+import { ProductStock } from 'src/entities/product-stock.entity';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product) private productRepo: Repository<Product>,
     @InjectRepository(Category) private categoryRepo: Repository<Category>,
+    @InjectRepository(ProductStock)
+    private productStockRepo: Repository<ProductStock>,
   ) {}
 
   async findAll(params?: FilterProductsDto) {
@@ -172,5 +175,31 @@ export class ProductsService {
     product.categories.splice(categoryIndex, 1);
     this.productRepo.save(product);
     return category;
+  }
+
+  async purchase(productNames) {
+    console.log(productNames);
+
+    for (const prod of productNames) {
+      const product = await this.productRepo.findOne({
+        where: { name: prod.name },
+        relations: ['categories', 'productStocks', 'productStocks.branch'],
+      });
+
+      console.log(product.productStocks);
+
+      for (const productStock of product.productStocks) {
+        const quantityToSubtract = Math.min(prod.quantity, productStock.stock);
+        productStock.stock -= quantityToSubtract;
+        this.productStockRepo.save(productStock);
+        prod.quantity -= quantityToSubtract;
+
+        if (prod.quantity === 0) {
+          break;
+        }
+      }
+    }
+
+    return 'success';
   }
 }

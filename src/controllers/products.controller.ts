@@ -189,4 +189,22 @@ export class ProductsController {
       };
     }
   }
+
+  @MessagePattern(ProductMSG.PURCHASE)
+  async purchase(@Payload() productNames) {
+    try {
+      const message = await this.productsService.purchase(productNames);
+      return {
+        success: true,
+        message: 'Stock updated succesfully',
+        data: message,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Failed to update Stock',
+        error: error.message,
+      };
+    }
+  }
 }
