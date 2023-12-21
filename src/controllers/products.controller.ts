@@ -207,4 +207,22 @@ export class ProductsController {
       };
     }
   }
+
+  @MessagePattern(ProductMSG.GET_PRICES)
+  async getPrices(@Payload() productNames) {
+    try {
+      const message = await this.productsService.getPrices(productNames);
+      return {
+        success: true,
+        message: 'Product prices found',
+        data: message,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Failed to find products prices',
+        error: error.message,
+      };
+    }
+  }
 }

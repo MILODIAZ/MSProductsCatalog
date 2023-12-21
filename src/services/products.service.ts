@@ -202,4 +202,22 @@ export class ProductsService {
 
     return 'success';
   }
+
+  async getPrices(productNames) {
+    console.log(productNames);
+
+    for (const prod of productNames) {
+      const product = await this.productRepo.findOne({
+        where: { name: prod.product },
+      });
+      if (product) {
+        prod.total = product.price * prod.quantity;
+      } else {
+        console.log(`Producto no encontrado: ${prod.name}`);
+      }
+    }
+    console.log(productNames);
+
+    return productNames;
+  }
 }

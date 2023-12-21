@@ -13,6 +13,7 @@ export enum ProductMSG {
   ADD_CATEGORY = 'ADD_CATEGORY',
   REMOVE_CATEGORY = 'REMOVE_CATEGORY',
   PURCHASE = 'PURCHASE',
+  GET_PRICES = 'GET_PRICES',
 }
 
 export enum BranchMSG {
